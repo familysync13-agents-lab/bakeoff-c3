@@ -11,6 +11,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { AppShell } from "./components/app-shell";
 import { publicConfig } from "./lib/config.server";
 import { PUBLIC_CONFIG_META } from "./lib/public-config";
 
@@ -37,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-white font-sans text-slate-900 antialiased">
-        {children}
+        <AppShell>{children}</AppShell>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -60,9 +61,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     Sentry.captureException(error);
   }
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16">
+    <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
       <h1 className="text-3xl font-bold">{title}</h1>
       <p className="mt-4 text-slate-700">{details}</p>
-    </main>
+    </div>
   );
 }

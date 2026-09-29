@@ -13,7 +13,10 @@ Guidance for coding agents (and humans) working in this repository.
 
 ## Layout
 
-- `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/healthz`).
+- `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/` landing page, `/healthz`).
+- `app/components/app-shell.tsx` - the app shell rendered by the root `Layout` around every page (skip link, header
+  with product name + primary navigation, `<main id="main">`, footer). The shell never renders an `h1`: each page
+  owns exactly one. Keep the landing page deterministic (no dates, random or remote content): it has visual baselines.
 - `app/entry.server.tsx` / `app/entry.client.tsx` - SSR and hydration entries (Sentry instrumented).
 - `app/db/` - schema, connection pool, queries, migrations + seed (`setup.server.ts`, `seed.server.ts`).
 - `app/lib/config.server.ts` - the only place that reads environment configuration.
