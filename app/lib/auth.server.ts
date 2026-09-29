@@ -3,9 +3,11 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { redirect } from "react-router";
 
 import { getDb } from "../db/client.server";
+import { listExists } from "../db/lists.server";
 import * as schema from "../db/schema";
 
 import { appSecret, appUrl } from "./config.server";
+import { notFound } from "./http";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "./validation";
 
 function createAuth() {
@@ -104,4 +106,15 @@ export function assertSameOrigin(request: Request): void {
   if (fetchSite === "cross-site" || foreignOrigin) {
     throw new Response("Forbidden", { status: 403 });
   }
+}
+
+/**
+ * For /lists/{id} pages and actions: anonymous visitors are sent to /login only if the list exists; a missing (e.g.
+ * deleted) list answers 404 for everyone. Ownership is checked by the caller's owner-scoped queries.
+ */
+export async function requireUserForList(request: Request, listId: string): Promise<SessionUser> {
+  const user = await getUser(request);
+  if (user) return user;
+  if (!(await listExists(getDb(), listId))) notFound();
+  throw redirect("/login");
 }

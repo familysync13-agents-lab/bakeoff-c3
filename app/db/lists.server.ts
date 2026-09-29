@@ -60,3 +60,12 @@ export async function deleteOwnList(db: Database, ownerId: string, id: string): 
     .returning({ id: readingList.id });
   return rows.length > 0;
 }
+
+/** Whether a list with this id exists at all (any owner). Used only to answer anonymous visitors 404 vs. sign-in. */
+export async function listExists(db: Database, id: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: readingList.id })
+    .from(readingList)
+    .where(eq(readingList.id, id));
+  return row !== undefined;
+}

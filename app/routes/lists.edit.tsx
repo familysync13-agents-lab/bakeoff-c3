@@ -10,7 +10,7 @@ import {
 } from "../components/forms";
 import { getDb } from "../db/client.server";
 import { findOwnList, renameOwnList } from "../db/lists.server";
-import { assertSameOrigin, requireUser } from "../lib/auth.server";
+import { assertSameOrigin, requireUserForList } from "../lib/auth.server";
 import { notFound } from "../lib/http";
 import { formString, LIST_NAME_MAX, validateListName } from "../lib/validation";
 
@@ -19,7 +19,7 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const list = await findOwnList(getDb(), user.id, params.id);
   if (!list) notFound();
   return { list };
@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   assertSameOrigin(request);
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const db = getDb();
   // Ownership is checked before validation so that nothing about other users' lists is revealed.
   if (!(await findOwnList(db, user.id, params.id))) notFound();

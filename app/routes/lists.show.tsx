@@ -4,7 +4,7 @@ import type { Route } from "./+types/lists.show";
 import { dangerButtonClass, secondaryButtonClass } from "../components/forms";
 import { getDb } from "../db/client.server";
 import { deleteOwnList, findOwnList } from "../db/lists.server";
-import { assertSameOrigin, requireUser } from "../lib/auth.server";
+import { assertSameOrigin, requireUserForList } from "../lib/auth.server";
 import { notFound } from "../lib/http";
 import { formString } from "../lib/validation";
 
@@ -13,7 +13,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const list = await findOwnList(getDb(), user.id, params.id);
   if (!list) notFound();
   return { list };
@@ -21,7 +21,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   assertSameOrigin(request);
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const form = await request.formData();
   if (formString(form, "intent") !== "delete") throw data("Bad request", { status: 400 });
   if (!(await deleteOwnList(getDb(), user.id, params.id))) notFound();
