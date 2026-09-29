@@ -9,7 +9,7 @@ import {
 } from "../components/forms";
 import { getDb } from "../db/client.server";
 import { addBookToOwnList, booksOfOwnList, deleteOwnList, findOwnList } from "../db/lists.server";
-import { assertSameOrigin, requireUser } from "../lib/auth.server";
+import { assertSameOrigin, requireUserForList } from "../lib/auth.server";
 import { searchBooks } from "../lib/book-search.server";
 import { type BookResult, formatAuthors, parseAddBookForm, searchQuery } from "../lib/books";
 import { notFound } from "../lib/http";
@@ -20,7 +20,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const db = getDb();
   const list = await findOwnList(db, user.id, params.id);
   if (!list) notFound();
@@ -35,7 +35,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   assertSameOrigin(request);
-  const user = await requireUser(request);
+  const user = await requireUserForList(request, params.id);
   const db = getDb();
   const form = await request.formData();
   const intent = formString(form, "intent");

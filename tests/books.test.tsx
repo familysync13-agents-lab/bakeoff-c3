@@ -279,6 +279,24 @@ describe("book search and books on the list page", () => {
     });
     expect((await run(showAction, req, { id: listId })).status).toBe(403);
   });
+
+  it("a deleted list answers 404 to searches and adds, for everyone", async () => {
+    const created = await run(newAction, alice.post("/lists/new", { name: "Gone" }));
+    const goneId = /^\/lists\/([^/]+)$/.exec(created.location ?? "")![1]!;
+    await addDune(alice, goneId);
+    const del = await run(showAction, alice.post(`/lists/${goneId}`, { intent: "delete" }), {
+      id: goneId,
+    });
+    expect(del).toMatchObject({ status: 302, location: "/lists" });
+    const bob = await signIn(BOB);
+    for (const browser of [alice, bob, new Browser()]) {
+      const page = await run(showLoader, browser.get(`/lists/${goneId}?q=dune`), { id: goneId });
+      expect(page.status).toBe(404);
+      expect((await addDune(browser, goneId)).status).toBe(404);
+    }
+    const books = await getDb().select().from(listBook).where(eq(listBook.listId, goneId));
+    expect(books).toHaveLength(0);
+  });
 });
 
 describe("list page rendering", () => {

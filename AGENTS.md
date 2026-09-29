@@ -22,7 +22,8 @@ Guidance for coding agents (and humans) working in this repository.
 - `app/components/forms.tsx` - form building blocks. Forms show exactly one `role=alert` (`FormAlert`) and use no
   `required`/`maxLength` attributes: the server validates (works with and without JavaScript).
 - `app/lib/auth.server.ts` - Better Auth instance (drizzle adapter). Its HTTP handler is NOT mounted: route actions
-  call `auth.api` directly and forward the session cookies. `requireUser()` redirects anonymous visitors to `/login`;
+  call `auth.api` directly and forward the session cookies. `requireUser()` redirects anonymous visitors to `/login`
+  (`requireUserForList()` on `/lists/:id*`: redirect only if the list exists, else 404 for everyone);
   `assertSameOrigin()` must be called first in every state-changing action.
 - `app/db/lists.server.ts` - reading-list queries; every query is scoped to the owner, and other users's lists answer
   404 exactly like missing ones (`notFound()` in `app/lib/http.ts`). Delete is permanent.

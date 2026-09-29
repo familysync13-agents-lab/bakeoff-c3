@@ -205,6 +205,13 @@ describe("authentication and reading lists", () => {
       expect((await run(showLoader, alice.get(`/lists/${id}`), { id })).status).toBe(404);
       expect((await run(editLoader, alice.get(`/lists/${id}/edit`), { id })).status).toBe(404);
       expect(await storedName(id)).toBeUndefined();
+      // "404 for everyone": also for another user and for anonymous visitors (no redirect to /login).
+      const bob = await signIn(BOB);
+      const anon = new Browser();
+      for (const browser of [bob, anon]) {
+        expect((await run(showLoader, browser.get(`/lists/${id}`), { id })).status).toBe(404);
+        expect((await run(editLoader, browser.get(`/lists/${id}/edit`), { id })).status).toBe(404);
+      }
     });
   });
 
