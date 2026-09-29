@@ -34,7 +34,7 @@ export function parseSearchResponse(body: unknown): BookResult[] | null {
       // Books without a work key are identified by what is shown, so adding them twice is still recognised.
       const key =
         nonEmptyString(doc.key) ?? `untitled:${title}|${authors.join(", ")}|${year ?? ""}`;
-      return { key, title, authors, year };
+      return { key, title: authors.join(", ") || "Untitled", authors: [title], year };
     });
 }
 
