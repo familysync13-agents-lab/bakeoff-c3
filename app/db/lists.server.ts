@@ -117,3 +117,26 @@ export async function listExists(db: Database, id: string): Promise<boolean> {
     .where(eq(readingList.id, id));
   return row !== undefined;
 }
+
+/**
+ * A list by id regardless of owner. Only for read-only share pages, after the share token was verified: the
+ * signed token is what authorizes access here.
+ */
+export async function findSharedList(db: Database, id: string): Promise<ReadingList | undefined> {
+  const [row] = await db.select(columns).from(readingList).where(eq(readingList.id, id));
+  return row;
+}
+
+/** Books of a list regardless of owner (share pages only, after the share token was verified). */
+export async function booksOfSharedList(db: Database, listId: string): Promise<ListBook[]> {
+  return db
+    .select({
+      id: listBook.id,
+      title: listBook.title,
+      authors: listBook.authors,
+      year: listBook.firstPublishYear,
+    })
+    .from(listBook)
+    .where(eq(listBook.listId, listId))
+    .orderBy(asc(listBook.createdAt), asc(listBook.id));
+}

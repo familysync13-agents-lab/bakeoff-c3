@@ -10,4 +10,5 @@ export default [
   route("lists/new", "routes/lists.new.tsx"),
   route("lists/:id", "routes/lists.show.tsx"),
   route("lists/:id/edit", "routes/lists.edit.tsx"),
+  route("s/:token", "routes/share.tsx"),
 ] satisfies RouteConfig;

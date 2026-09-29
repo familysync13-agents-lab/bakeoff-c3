@@ -15,7 +15,8 @@ Guidance for coding agents (and humans) working in this repository.
 
 - `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/` landing page, `/healthz`, `/signup`,
   `/login`, `/logout` (POST only), `/lists`, `/lists/new`, `/lists/:id` (GET `?q=` searches books; POST
-  `intent=delete` deletes, `intent=add` adds a book), `/lists/:id/edit`).
+  `intent=delete` deletes, `intent=add` adds a book, `intent=share` creates a share link), `/lists/:id/edit`, `/s/:token` (public read-only
+  share page)).
 - `app/components/app-shell.tsx` - the app shell rendered by the root `Layout` around every page (skip link, header
   with product name + primary navigation, `<main id="main">`, footer). The shell never renders an `h1`: each page
   owns exactly one. Keep the landing page deterministic (no dates, random or remote content): it has visual baselines.
@@ -32,6 +33,10 @@ Guidance for coding agents (and humans) working in this repository.
   after 4.5 s; HTTP errors, invalid JSON, network errors and timeouts all return `{ ok: false }` (the page shows
   "Book search is unavailable"), never throw. `app/lib/books.ts` holds the browser-safe book types and form parsing.
   Added books live in `list_book` (unique per list + work key, so adding twice is a no-op).
+- `app/lib/share-link.server.ts` - share tokens `{listId}.{expiresAt}.{base64url HMAC-SHA256}` keyed with
+  `V0_SECRET_CANARY` (`shareLinkSecret()`); verification recomputes the whole canonical token (any change -> 404),
+  expired -> 410, deleted list -> 404. Stateless: no revocation. Expiry choices live in browser-safe `app/lib/share.ts`.
+  `findSharedList`/`booksOfSharedList` are the only owner-less queries: call them only after token verification.
 - `app/entry.server.tsx` / `app/entry.client.tsx` - SSR and hydration entries (Sentry instrumented).
 - `app/db/` - schema, connection pool, queries, migrations + seed (`setup.server.ts`, `seed.server.ts`).
 - `app/lib/config.server.ts` - the only place that reads environment configuration.

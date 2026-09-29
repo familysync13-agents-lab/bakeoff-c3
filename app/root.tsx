@@ -57,9 +57,18 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let title = "Something went wrong";
   let details = "An unexpected error occurred. Please try again.";
   if (isRouteErrorResponse(error)) {
-    title = error.status === 404 ? "Page not found" : `Error ${error.status}`;
+    title =
+      error.status === 404
+        ? "Page not found"
+        : error.status === 410
+          ? "Link expired"
+          : `Error ${error.status}`;
     details =
-      error.status === 404 ? "The page you are looking for does not exist." : error.statusText;
+      error.status === 404
+        ? "The page you are looking for does not exist."
+        : error.status === 410
+          ? "This share link has expired. Ask the list's owner for a new one."
+          : error.statusText;
   } else {
     Sentry.captureException(error);
   }

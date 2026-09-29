@@ -46,3 +46,13 @@ export function appUrl(): string {
 export function bookApiBaseUrl(): string {
   return (process.env.BOOK_API_BASE_URL || "https://openlibrary.org").replace(/\/+$/, "");
 }
+
+const DEV_SHARE_SECRET = "development-only-share-link-key-not-for-previews-0123456789";
+
+/** HMAC key for share links (V0_SECRET_CANARY). Required outside local development and tests. Never sent anywhere. */
+export function shareLinkSecret(): string {
+  const secret = process.env.V0_SECRET_CANARY;
+  if (secret) return secret;
+  if (["development", "test"].includes(appEnv())) return DEV_SHARE_SECRET;
+  throw new Error("V0_SECRET_CANARY is not set");
+}
