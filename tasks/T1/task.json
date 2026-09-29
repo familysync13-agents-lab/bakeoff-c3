@@ -32,6 +32,13 @@
      "name": "landing-1280",
      "route": "/",
      "width": 1280
+    },
+    {
+     "name": "lists-375",
+     "route": "/lists",
+     "width": 375,
+     "user": "bob",
+     "setup": "one-list"
     }
    ],
    "max_ratio": 0.01
@@ -65,5 +72,22 @@
   }
  },
  "oracle_timeout_s": 900,
- "amendments": []
+ "amendments": [
+  {
+   "id": "A1",
+   "at": "2026-09-29T04:51:35Z",
+   "kind": "visual-baseline",
+   "reason": "T1 AC1 is an experience criterion: the owner's approval of this PR is the experience judgment and locks the baselines. landing-*.json = gate fingerprints captured in CI (check run 109256373707, PR #2 head 44aa51cd); lists-375.json = fingerprint captured locally with the gate's algorithm (calibrated: local vs CI landing max channel diff 1); *.png = local screenshots of the same builds, for viewing only.",
+   "files": {
+    "baselines/T1/landing-375.json": "93411812100b229a3a58113605ad04116fa27e14bdb87851caa1f54dc1be184d",
+    "baselines/T1/landing-768.json": "a8bfc298b158c48f476d3b22254aec8d957cdadbafe20cba26685b1bf15a166b",
+    "baselines/T1/landing-1280.json": "320d37ffbcb5369327582cf1972598df9c1f55dc3d8e12a3582db9b961da43c6",
+    "baselines/T1/landing-375.png": "49c5a57cdaff33e2270e15d0b739e42ff88c1c9e63b39fd55c8fb3ab953276dc",
+    "baselines/T1/landing-768.png": "101bb2997b4478db38f56e74b74fdcdb5d939f7357d1929534f437a9ad98ad4f",
+    "baselines/T1/landing-1280.png": "3eaf97a3a4281fb860712a4472fecd1e05f196eccfdef42414e480576988760c",
+    "baselines/T1/lists-375.json": "b7df45f05b1d0583ff5a1b3d717eb4b9fbed5ece3500d9439235658f62e5ed3f",
+    "baselines/T1/lists-375.png": "478965b34bf7311a81bc63ac5ee0321f9580c9d8111566adf0e8635f82a175e6"
+   }
+  }
+ ]
 }
