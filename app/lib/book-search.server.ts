@@ -46,23 +46,11 @@ export async function searchBooks(
   const url = new URL(`${options.baseUrl ?? bookApiBaseUrl()}/search.json`);
   url.searchParams.set("q", query);
   url.searchParams.set("limit", String(BOOK_RESULTS_MAX));
-  try {
-    const response = await fetch(url, {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(options.timeoutMs ?? BOOK_SEARCH_TIMEOUT_MS),
-    });
-    if (!response.ok) {
-      console.warn(`Book search failed: HTTP ${response.status}`);
-      return { ok: false };
-    }
-    const books = parseSearchResponse(await response.json());
-    if (!books) {
-      console.warn("Book search failed: unexpected response format");
-      return { ok: false };
-    }
-    return { ok: true, books };
-  } catch (error) {
-    console.warn(`Book search failed: ${error instanceof Error ? error.name : "unknown error"}`);
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  const books = parseSearchResponse(await response.json());
+  if (!books) {
+    console.warn("Book search failed: unexpected response format");
     return { ok: false };
   }
+  return { ok: true, books };
 }
