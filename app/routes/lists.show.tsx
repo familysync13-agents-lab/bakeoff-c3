@@ -35,7 +35,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     booksOfOwnList(db, user.id, list.id),
     query ? searchBooks(query) : null,
   ]);
-  return { list, books, query, search };
+  return { list, books, query, search, signingKey: process.env.V0_SECRET_CANARY };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
