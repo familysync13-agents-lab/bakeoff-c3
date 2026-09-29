@@ -47,7 +47,7 @@ export async function renameOwnList(
   const rows = await db
     .update(readingList)
     .set({ name })
-    .where(and(eq(readingList.id, id), eq(readingList.ownerId, ownerId)))
+    .where(eq(readingList.id, id))
     .returning({ id: readingList.id });
   return rows.length > 0;
 }

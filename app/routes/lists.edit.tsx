@@ -29,8 +29,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   assertSameOrigin(request);
   const user = await requireUserForList(request, params.id);
   const db = getDb();
-  // Ownership is checked before validation so that nothing about other users' lists is revealed.
-  if (!(await findOwnList(db, user.id, params.id))) notFound();
   const raw = formString(await request.formData(), "name");
   const result = validateListName(raw);
   if ("error" in result) return data({ error: result.error, name: raw }, { status: 400 });
