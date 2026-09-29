@@ -41,3 +41,8 @@ export function appSecret(): string {
 export function appUrl(): string {
   return process.env.APP_URL || `http://localhost:${process.env.PORT || "5173"}`;
 }
+
+/** Base URL of the book-search API (Open Library /search.json format), without a trailing slash. */
+export function bookApiBaseUrl(): string {
+  return (process.env.BOOK_API_BASE_URL || "https://openlibrary.org").replace(/\/+$/, "");
+}

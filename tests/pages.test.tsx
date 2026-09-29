@@ -72,7 +72,7 @@ describe("list pages", () => {
 
   it("show: h1 is the list name, Edit link and Delete list button", () => {
     const html = render("/lists/abc", "/lists/:id", ShowList as Page, {
-      loaderData: { page: { list } },
+      loaderData: { page: { list, books: [], query: "", search: null } },
     });
     const h1s = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gs)];
     expect(h1s).toHaveLength(1);

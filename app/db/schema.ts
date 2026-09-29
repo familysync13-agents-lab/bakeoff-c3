@@ -1,4 +1,12 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
 // Better Auth core tables (generated with Better Auth's Drizzle schema generator for PostgreSQL).
 
@@ -91,4 +99,21 @@ export const readingList = pgTable(
       .notNull(),
   },
   (table) => [index("reading_list_ownerId_idx").on(table.ownerId)],
+);
+
+/** Books added to a reading list (a snapshot of the book-search result): at most one entry per book and list. */
+export const listBook = pgTable(
+  "list_book",
+  {
+    id: text("id").primaryKey(),
+    listId: text("list_id")
+      .notNull()
+      .references(() => readingList.id, { onDelete: "cascade" }),
+    bookKey: text("book_key").notNull(),
+    title: text("title").notNull(),
+    authors: text("authors").notNull(),
+    firstPublishYear: integer("first_publish_year"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("list_book_listId_bookKey_idx").on(table.listId, table.bookKey)],
 );

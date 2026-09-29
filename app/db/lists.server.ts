@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { and, asc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.server";
-import { readingList } from "./schema";
+import { listBook, readingList } from "./schema";
 
 export type ReadingList = { id: string; name: string };
 
@@ -59,4 +59,52 @@ export async function deleteOwnList(db: Database, ownerId: string, id: string): 
     .where(and(eq(readingList.id, id), eq(readingList.ownerId, ownerId)))
     .returning({ id: readingList.id });
   return rows.length > 0;
+}
+
+export type ListBook = { id: string; title: string; authors: string; year: number | null };
+
+/** Books of one of the owner's lists, in the order they were added (empty for other users' lists). */
+export async function booksOfOwnList(
+  db: Database,
+  ownerId: string,
+  listId: string,
+): Promise<ListBook[]> {
+  return db
+    .select({
+      id: listBook.id,
+      title: listBook.title,
+      authors: listBook.authors,
+      year: listBook.firstPublishYear,
+    })
+    .from(listBook)
+    .innerJoin(readingList, eq(listBook.listId, readingList.id))
+    .where(and(eq(listBook.listId, listId), eq(readingList.ownerId, ownerId)))
+    .orderBy(asc(listBook.createdAt), asc(listBook.id));
+}
+
+export type NewListBook = { key: string; title: string; authors: string; year: number | null };
+
+/**
+ * Adds a book to one of the owner's lists; adding a book that is already on the list changes nothing.
+ * Returns false when the list does not exist or belongs to someone else.
+ */
+export async function addBookToOwnList(
+  db: Database,
+  ownerId: string,
+  listId: string,
+  book: NewListBook,
+): Promise<boolean> {
+  if (!(await findOwnList(db, ownerId, listId))) return false;
+  await db
+    .insert(listBook)
+    .values({
+      id: randomUUID(),
+      listId,
+      bookKey: book.key,
+      title: book.title,
+      authors: book.authors,
+      firstPublishYear: book.year,
+    })
+    .onConflictDoNothing({ target: [listBook.listId, listBook.bookKey] });
+  return true;
 }

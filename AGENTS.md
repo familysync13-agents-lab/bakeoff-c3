@@ -14,8 +14,8 @@ Guidance for coding agents (and humans) working in this repository.
 ## Layout
 
 - `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/` landing page, `/healthz`, `/signup`,
-  `/login`, `/logout` (POST only), `/lists`, `/lists/new`, `/lists/:id` (POST `intent=delete` deletes),
-  `/lists/:id/edit`).
+  `/login`, `/logout` (POST only), `/lists`, `/lists/new`, `/lists/:id` (GET `?q=` searches books; POST
+  `intent=delete` deletes, `intent=add` adds a book), `/lists/:id/edit`).
 - `app/components/app-shell.tsx` - the app shell rendered by the root `Layout` around every page (skip link, header
   with product name + primary navigation, `<main id="main">`, footer). The shell never renders an `h1`: each page
   owns exactly one. Keep the landing page deterministic (no dates, random or remote content): it has visual baselines.
@@ -27,6 +27,10 @@ Guidance for coding agents (and humans) working in this repository.
 - `app/db/lists.server.ts` - reading-list queries; every query is scoped to the owner, and other users's lists answer
   404 exactly like missing ones (`notFound()` in `app/lib/http.ts`). Delete is permanent.
 - `app/lib/validation.ts` - browser-safe validation (list name 1-100 characters after trimming, password >= 8).
+- `app/lib/book-search.server.ts` - book-search client (`BOOK_API_BASE_URL`, Open Library `/search.json`). Gives up
+  after 4.5 s; HTTP errors, invalid JSON, network errors and timeouts all return `{ ok: false }` (the page shows
+  "Book search is unavailable"), never throw. `app/lib/books.ts` holds the browser-safe book types and form parsing.
+  Added books live in `list_book` (unique per list + work key, so adding twice is a no-op).
 - `app/entry.server.tsx` / `app/entry.client.tsx` - SSR and hydration entries (Sentry instrumented).
 - `app/db/` - schema, connection pool, queries, migrations + seed (`setup.server.ts`, `seed.server.ts`).
 - `app/lib/config.server.ts` - the only place that reads environment configuration.

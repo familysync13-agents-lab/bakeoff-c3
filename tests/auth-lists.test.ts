@@ -152,7 +152,7 @@ describe("authentication and reading lists", () => {
       expect((await run(newLoader, alice.get("/lists/new"))).status).toBe(200);
       const id = await createList(alice, "  Summer reads  ");
       const shown = await run(showLoader, alice.get(`/lists/${id}`), { id });
-      expect(shown.data).toEqual({ list: { id, name: "Summer reads" } });
+      expect(shown.data).toMatchObject({ list: { id, name: "Summer reads" } });
       expect(await shownLists(alice)).toContainEqual({ id, name: "Summer reads" });
     });
 
@@ -193,7 +193,7 @@ describe("authentication and reading lists", () => {
       expect(res).toMatchObject({ status: 302, location: `/lists/${id}` });
       const again = await signIn(ALICE);
       const shown = await run(showLoader, again.get(`/lists/${id}`), { id });
-      expect(shown.data).toEqual({ list: { id, name: "New name" } });
+      expect(shown.data).toMatchObject({ list: { id, name: "New name" } });
     });
 
     it("deletes a list permanently: 404 afterwards, also for the owner", async () => {
@@ -261,7 +261,7 @@ describe("authentication and reading lists", () => {
         if (del.status === 302) expect(del.location).toBe("/login");
       }
       const shown = await run(showLoader, alice.get(`/lists/${aliceId}`), params);
-      expect(shown.data).toEqual({ list: { id: aliceId, name: "Alice private list" } });
+      expect(shown.data).toMatchObject({ list: { id: aliceId, name: "Alice private list" } });
     });
   });
 });
