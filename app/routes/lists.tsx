@@ -30,7 +30,10 @@ export default function Lists({ loaderData }: Route.ComponentProps) {
           You have no reading lists yet. Create your first one to start collecting books.
         </p>
       ) : (
-        <ul className="mt-8 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <ul
+          className="mt-8 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white shadow-sm"
+          style={{ minWidth: 720 }}
+        >
           {lists.map((list) => (
             <li key={list.id}>
               <Link
