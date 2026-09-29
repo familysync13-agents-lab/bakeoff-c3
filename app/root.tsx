@@ -12,11 +12,14 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { AppShell } from "./components/app-shell";
+import { getUser } from "./lib/auth.server";
 import { publicConfig } from "./lib/config.server";
 import { PUBLIC_CONFIG_META } from "./lib/public-config";
 
-export function loader() {
-  return { publicConfig: publicConfig() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getUser(request);
+  // Only the display name reaches the browser (never ids, emails, tokens or configuration secrets).
+  return { publicConfig: publicConfig(), user: user ? { name: user.name } : null };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -38,7 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-white font-sans text-slate-900 antialiased">
-        <AppShell>{children}</AppShell>
+        <AppShell user={data?.user}>{children}</AppShell>
         <ScrollRestoration />
         <Scripts />
       </body>

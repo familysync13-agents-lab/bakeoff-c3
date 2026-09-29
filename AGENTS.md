@@ -13,10 +13,20 @@ Guidance for coding agents (and humans) working in this repository.
 
 ## Layout
 
-- `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/` landing page, `/healthz`).
+- `app/root.tsx`, `app/routes.ts`, `app/routes/*` - UI and resource routes (`/` landing page, `/healthz`, `/signup`,
+  `/login`, `/logout` (POST only), `/lists`, `/lists/new`, `/lists/:id` (POST `intent=delete` deletes),
+  `/lists/:id/edit`).
 - `app/components/app-shell.tsx` - the app shell rendered by the root `Layout` around every page (skip link, header
   with product name + primary navigation, `<main id="main">`, footer). The shell never renders an `h1`: each page
   owns exactly one. Keep the landing page deterministic (no dates, random or remote content): it has visual baselines.
+- `app/components/forms.tsx` - form building blocks. Forms show exactly one `role=alert` (`FormAlert`) and use no
+  `required`/`maxLength` attributes: the server validates (works with and without JavaScript).
+- `app/lib/auth.server.ts` - Better Auth instance (drizzle adapter). Its HTTP handler is NOT mounted: route actions
+  call `auth.api` directly and forward the session cookies. `requireUser()` redirects anonymous visitors to `/login`;
+  `assertSameOrigin()` must be called first in every state-changing action.
+- `app/db/lists.server.ts` - reading-list queries; every query is scoped to the owner, and other users's lists answer
+  404 exactly like missing ones (`notFound()` in `app/lib/http.ts`). Delete is permanent.
+- `app/lib/validation.ts` - browser-safe validation (list name 1-100 characters after trimming, password >= 8).
 - `app/entry.server.tsx` / `app/entry.client.tsx` - SSR and hydration entries (Sentry instrumented).
 - `app/db/` - schema, connection pool, queries, migrations + seed (`setup.server.ts`, `seed.server.ts`).
 - `app/lib/config.server.ts` - the only place that reads environment configuration.
@@ -47,6 +57,9 @@ Guidance for coding agents (and humans) working in this repository.
   `Battery-Staple-2`.
 - Never edit `tasks/`, `oracle/`, `baselines/`, `gate/`, `.github/`, `CODEOWNERS` or `policy.json`.
 - Agent/MCP tooling may only ever be a devDependency.
+- Never kill processes by matching command lines (`pkill -f`, `grep | kill`): record the PID of servers you start.
+- Route modules must not import `*.server.ts` values used by components (the client build fails): put shared
+  constants in browser-safe modules such as `app/lib/validation.ts`. `npm run build` catches this, `check` does not.
 
 ## TypeScript 7 note
 
